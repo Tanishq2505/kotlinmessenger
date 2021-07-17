@@ -24,7 +24,7 @@ import java.util.*
 
 
 private val firebaseAuth = FirebaseAuth.getInstance()
-class MainActivity : AppCompatActivity() {
+class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -138,6 +138,10 @@ var selectedPhotoUri : Uri? = null
         ref.setValue(user)
             .addOnSuccessListener {
                 Log.d("RegisterActivity","Data send successful!")
+                val intent = Intent(this,LatestMessagesActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+
             }
             .addOnFailureListener{
                 Log.d("RegisterActivity","Data Send Failed = ${it.message}")
@@ -146,6 +150,3 @@ var selectedPhotoUri : Uri? = null
 
 }
 
-class User(val uid :String,val username:String, val profileImageUrl:String,val email:String){
-    constructor():this("","","","")
-}
