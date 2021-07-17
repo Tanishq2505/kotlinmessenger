@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">KotlinMessenger</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="username">Username</string>
+    <string name="register">Register</string>
+    <string name="already_registered_login_now">Already Registered? Login Now!</string>
+    <string name="login">Login</string>
+    <string name="select_photo">SELECT PHOTO</string>
 </resources>

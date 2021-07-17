@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#00BCD4"
+    android:background="@android:color/holo_blue_light"
     tools:context=".MainActivity" >
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <EditText
+
         android:id="@+id/username_edit_text_register"
         android:layout_width="0dp"
         android:layout_height="50dp"
@@ -17,25 +21,28 @@
         android:background="@drawable/rounded_edit_text_register_login"
         android:ems="10"
 
-        android:hint="Username"
+        android:hint="@string/username"
         android:inputType="textPersonName"
-        android:paddingLeft="20dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_image_button_register"
         app:layout_constraintVertical_bias="0.0" />
 
     <EditText
+         
         android:id="@+id/email_edit_text_register"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edit_text_register_login"
         android:ems="10"
-        android:hint="Email"
-        android:paddingLeft="20dp"
+        android:hint="@string/email"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:inputType="textEmailAddress"
         app:layout_constraintEnd_toEndOf="@+id/username_edit_text_register"
         app:layout_constraintHorizontal_bias="0.0"
@@ -43,27 +50,29 @@
         app:layout_constraintTop_toBottomOf="@+id/username_edit_text_register" />
 
     <EditText
+         
         android:id="@+id/password_edit_text_register"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/rounded_edit_text_register_login"
         android:ems="10"
-        android:hint="Password"
-        android:paddingLeft="20dp"
+        android:hint="@string/password"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="@+id/email_edit_text_register"
         app:layout_constraintStart_toStartOf="@+id/email_edit_text_register"
         app:layout_constraintTop_toBottomOf="@+id/email_edit_text_register" />
 
     <Button
-        android:background="@drawable/rounded_button"
-android:backgroundTint="@android:color/holo_blue_light"
         android:id="@+id/register_button_register"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Register"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/rounded_button"
+        android:text="@string/register"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="@+id/password_edit_text_register"
         app:layout_constraintStart_toStartOf="@+id/password_edit_text_register"
         app:layout_constraintTop_toBottomOf="@+id/password_edit_text_register" />
@@ -73,9 +82,38 @@ android:backgroundTint="@android:color/holo_blue_light"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="Already Registered? Login Now!"
+        android:text="@string/already_registered_login_now"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="@+id/register_button_register"
         app:layout_constraintStart_toStartOf="@+id/register_button_register"
         app:layout_constraintTop_toBottomOf="@+id/register_button_register" />
+
+    <Button
+        android:id="@+id/select_image_button_register"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/rounded_button"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:text="@string/select_photo"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/photo_image_view"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        app:civ_border_width="4dp"
+        app:civ_border_color="@android:color/holo_blue_dark"
+        app:layout_constraintBottom_toBottomOf="@+id/select_image_button_register"
+        app:layout_constraintEnd_toEndOf="@+id/select_image_button_register"
+        app:layout_constraintStart_toStartOf="@+id/select_image_button_register"
+        app:layout_constraintTop_toTopOf="@+id/select_image_button_register" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
