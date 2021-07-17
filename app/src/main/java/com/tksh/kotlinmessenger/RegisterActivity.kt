@@ -16,6 +16,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE
+import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
 
@@ -54,13 +57,35 @@ var selectedPhotoUri : Uri? = null
         super.onActivityResult(requestCode, resultCode, data)
 
         if(requestCode == 0 && resultCode == Activity.RESULT_OK && data !=null){
-            selectedPhotoUri = data.data
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver,selectedPhotoUri)
-            photo_image_view.setImageBitmap(bitmap)
-            select_image_button_register.alpha = 0f
+            data.data.let { uri ->
+                launchImageCrop(uri)
+            }
+
 //            val bitmapDrawable = BitmapDrawable(bitmap)
 //            select_image_button_register.setBackgroundDrawable(bitmapDrawable)
         }
+        if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+            val result = CropImage.getActivityResult(data)
+            if(resultCode == Activity.RESULT_OK){
+                selectedPhotoUri = result.uri
+                val bitmap = MediaStore.Images.Media.getBitmap(contentResolver,selectedPhotoUri)
+                photo_image_view.setImageBitmap(bitmap)
+                select_image_button_register.alpha = 0f
+
+            }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE){
+                Log.d("RegisterActivity","Crop Error = ${result.error}")
+            }
+        }
+
+
+    }
+
+    private fun launchImageCrop(uri: Uri?) {
+        CropImage.activity(uri)
+            .setGuidelines(CropImageView.Guidelines.ON)
+            .setAspectRatio(1080,1080)
+            .setFixAspectRatio(true)
+            .start(this)
     }
 
     private fun performRegister(userName :String,email:String,password:String) {
