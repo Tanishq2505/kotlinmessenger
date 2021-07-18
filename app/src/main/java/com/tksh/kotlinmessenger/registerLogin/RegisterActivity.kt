@@ -1,4 +1,4 @@
-package com.tksh.kotlinmessenger
+package com.tksh.kotlinmessenger.registerLogin
 
 import android.app.Activity
 import android.content.Intent
@@ -19,6 +19,9 @@ import com.google.firebase.storage.FirebaseStorage
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE
 import com.theartofdev.edmodo.cropper.CropImageView
+import com.tksh.kotlinmessenger.R
+import com.tksh.kotlinmessenger.messages.LatestMessagesActivity
+import com.tksh.kotlinmessenger.models.User
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
 
@@ -138,7 +141,8 @@ var selectedPhotoUri : Uri? = null
         ref.setValue(user)
             .addOnSuccessListener {
                 Log.d("RegisterActivity","Data send successful!")
-                val intent = Intent(this,LatestMessagesActivity::class.java)
+
+                val intent = Intent(this, LatestMessagesActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
 

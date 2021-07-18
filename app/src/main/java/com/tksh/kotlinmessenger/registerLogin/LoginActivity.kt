@@ -1,4 +1,4 @@
-package com.tksh.kotlinmessenger
+package com.tksh.kotlinmessenger.registerLogin
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -6,6 +6,7 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import com.google.firebase.auth.FirebaseAuth
+import com.tksh.kotlinmessenger.R
 
 private val firebaseAuth = FirebaseAuth.getInstance()
 class LoginActivity : AppCompatActivity() {

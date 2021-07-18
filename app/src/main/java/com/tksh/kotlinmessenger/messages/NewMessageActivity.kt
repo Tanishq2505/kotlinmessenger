@@ -1,16 +1,15 @@
-package com.tksh.kotlinmessenger
+package com.tksh.kotlinmessenger.messages
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.core.net.toUri
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
+import com.tksh.kotlinmessenger.R
+import com.tksh.kotlinmessenger.models.User
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
@@ -24,6 +23,9 @@ class NewMessageActivity : AppCompatActivity() {
         supportActionBar?.title = "Select User"
 
         fetchUsers()
+    }
+    companion object{
+        val USER_KEY = "USER_NAME_KEY"
     }
 
     private fun fetchUsers() {
@@ -40,6 +42,13 @@ class NewMessageActivity : AppCompatActivity() {
                     }
                 }
                 recyclerview_new_message.adapter = adapter
+                adapter.setOnItemClickListener { item, view ->
+                    val userData = item as UserItem
+                    val intent = Intent(this@NewMessageActivity,ChatLogActivity::class.java)
+                    intent.putExtra(USER_KEY,userData.user)
+                    startActivity(intent)
+                    finish()
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
