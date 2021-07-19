@@ -91,6 +91,8 @@ class ChatLogActivity : AppCompatActivity() {
         val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage = ChatMessage(reference.key!!,message,fromId,toId,System.currentTimeMillis()/1000)
         val toChatMessage = ChatMessage(reference.key!!,message,fromId,toId,System.currentTimeMillis()/1000)
+        val latestMessageReference = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
+        val latestMessageToReference = FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
         reference.setValue(chatMessage)
             .addOnSuccessListener {
                 Log.d(TAG,"Message sent : ${reference.key}")
@@ -101,6 +103,8 @@ class ChatLogActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Log.d(TAG,"Message sent : ${reference.key}")
             }
+        latestMessageReference.setValue(chatMessage)
+        latestMessageToReference.setValue(chatMessage)
     }
 
 //    private fun setupDummyData(user:User) {
