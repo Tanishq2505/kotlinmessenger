@@ -8,6 +8,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
 import com.squareup.picasso.Picasso
 import com.tksh.kotlinmessenger.R
 import com.tksh.kotlinmessenger.models.ChatMessage
@@ -25,31 +26,40 @@ class ChatLogActivity : AppCompatActivity() {
     companion object{
         const val TAG = "Chat Log"
     }
-    val adapter = GroupieAdapter()
+    private val adapter = GroupieAdapter()
+    private var toUser : User? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
         recyclerView_chatlog.adapter = adapter
-        val user = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY) ?: return
-        supportActionBar?.title = user?.username
+        recyclerView_chatlog.scrollToPosition(adapter.itemCount -1)
+        toUser = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY) ?: return
+        supportActionBar?.title = toUser?.username
 //        setupDummyData(user)
-        listenForMessages(user)
+        listenForMessages()
         sendtext_button_chat_log.setOnClickListener{
             Log.d(TAG,"Message Sent")
             performSendMessage()
-            edittext_chat_log.setText("")
+
         }
     }
 
-    private fun listenForMessages(user: User) {
-        val ref = FirebaseDatabase.getInstance().getReference("/messages")
+    private fun listenForMessages() {
+        val fromId = FirebaseAuth.getInstance().uid
+        val toId = toUser?.uid
+        val currentUser = LatestMessagesActivity.currentUser?:return
+        val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
 
         ref.addChildEventListener(object:ChildEventListener{
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val chatMessage = snapshot.getValue(ChatMessage::class.java)
              if (chatMessage!= null){
-                 if(chatMessage.fromId==FirebaseAuth.getInstance().uid) adapter.add(ChatFromItem(user, chatMessage))
-                 else adapter.add(ChatToItem(chatMessage))
+                 if(chatMessage.fromId==FirebaseAuth.getInstance().uid) {
+                     adapter.add(ChatFromItem(currentUser, chatMessage))
+                 }
+                 else {
+                     adapter.add(ChatToItem(chatMessage))
+                 }
             }
             }
 
@@ -71,15 +81,23 @@ class ChatLogActivity : AppCompatActivity() {
 
     private fun performSendMessage() {
         val message = edittext_chat_log.text.toString()
-        val toId = FirebaseAuth.getInstance().uid?:return
+        val fromId = FirebaseAuth.getInstance().uid?:return
         val user = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY) ?: return
-        val fromId = user.uid
+        val toId = user.uid
 
 
 
-        val reference = FirebaseDatabase.getInstance().getReference("/messages").push()
+        val reference = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
+        val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage = ChatMessage(reference.key!!,message,fromId,toId,System.currentTimeMillis()/1000)
+        val toChatMessage = ChatMessage(reference.key!!,message,fromId,toId,System.currentTimeMillis()/1000)
         reference.setValue(chatMessage)
+            .addOnSuccessListener {
+                Log.d(TAG,"Message sent : ${reference.key}")
+                edittext_chat_log.text.clear()
+                recyclerView_chatlog.scrollToPosition(adapter.itemCount-1)
+            }
+        toReference.setValue(toChatMessage)
             .addOnSuccessListener {
                 Log.d(TAG,"Message sent : ${reference.key}")
             }

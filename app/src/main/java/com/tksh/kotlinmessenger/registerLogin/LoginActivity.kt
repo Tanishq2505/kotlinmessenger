@@ -1,12 +1,15 @@
 package com.tksh.kotlinmessenger.registerLogin
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.tksh.kotlinmessenger.R
+import com.tksh.kotlinmessenger.messages.LatestMessagesActivity
 
 private val firebaseAuth = FirebaseAuth.getInstance()
 class LoginActivity : AppCompatActivity() {
@@ -31,8 +34,13 @@ class LoginActivity : AppCompatActivity() {
 
     private fun performLogin(emailLogin: String, passwordLogin: String) {
         firebaseAuth.signInWithEmailAndPassword(emailLogin,passwordLogin)
-//            .addOnSuccessListener {
-//                if(!it.) return@addOnSuccessListener
-//            }
+            .addOnSuccessListener {
+                val intent = Intent(this,LatestMessagesActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+            .addOnFailureListener{
+                Toast.makeText(this,"${it.message}",Toast.LENGTH_LONG).show()
+            }
             }
 }
