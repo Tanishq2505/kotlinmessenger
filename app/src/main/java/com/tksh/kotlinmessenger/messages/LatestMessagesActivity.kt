@@ -1,8 +1,11 @@
 package com.tksh.kotlinmessenger.messages
 
+import android.app.Activity
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -18,25 +21,36 @@ import kotlinx.android.synthetic.main.activity_latest_messages.*
 
 
 class LatestMessagesActivity : AppCompatActivity() {
-
-    companion object{
+    companion object {
+        var newMessageNotif:Int? = null
         var currentUser: User? = null
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val sharedPreferences = getSharedPreferences("New_Message", Activity.MODE_PRIVATE)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_latest_messages)
         recyclerview_latest_messages.adapter = adapter
         recyclerview_latest_messages.addItemDecoration(DividerItemDecoration(this,DividerItemDecoration.VERTICAL))
+        val editor = sharedPreferences.edit()
+        val newMessage= sharedPreferences.getInt("newMessageNotif",0)
+        newMessageNotif = newMessage
+
 
         loginCheck()
         fetchCurrentUser()
         listenForLatestMessages()
         adapter.setOnItemClickListener { item, view ->
+            editor.putInt("newMessageNotif",0)
+            editor.apply()
+            newMessageNotif = newMessage
             val row = item as LatestMessageRow
             val intent = Intent(this,ChatLogActivity::class.java)
             intent.putExtra(NewMessageActivity.USER_KEY,row.chatPartnerUser)
             startActivity(intent)
         }
+        Log.d("NewMessageNotif","shared = $newMessage , $newMessageNotif")
     }
     val latestMessagesMap = HashMap<String, ChatMessage> ()
     private fun refreshRecyclerViewMessages(){
@@ -48,23 +62,35 @@ class LatestMessagesActivity : AppCompatActivity() {
     }
 
     private fun listenForLatestMessages() {
+
         val fromId = FirebaseAuth.getInstance().uid
         val ref = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId")
         ref.addChildEventListener(object : ChildEventListener{
 
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                val chatMessage = snapshot.getValue(ChatMessage::class.java)?:return
 
+                val chatMessage = snapshot.getValue(ChatMessage::class.java)?:return
                 latestMessagesMap[snapshot.key!!] = chatMessage
                 refreshRecyclerViewMessages()
+
 
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                val chatMessage = snapshot.getValue(ChatMessage::class.java)?:return
 
+
+                val chatMessage = snapshot.getValue(ChatMessage::class.java)?:return
                 latestMessagesMap[snapshot.key!!] = chatMessage
+                val sharedPreferences = getSharedPreferences("New_Message", Activity.MODE_PRIVATE)
+                val editor = sharedPreferences.edit()
+                val newMessage= sharedPreferences.getInt("newMessageNotif",0)
+                editor.putInt("newMessageNotif",1)
+                editor.apply()
+                newMessageNotif = newMessage
                 refreshRecyclerViewMessages()
+                Log.d("NewMessageNotif","shared = $newMessage , $newMessageNotif")
+
+
             }
 
             override fun onChildRemoved(snapshot: DataSnapshot) {

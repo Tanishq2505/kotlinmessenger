@@ -105,4 +105,10 @@ class ChatLogActivity : AppCompatActivity() {
         latestMessageToReference.setValue(chatMessage)
     }
 
+    override fun onBackPressed() {
+        finish()
+        super.onBackPressed()
+
+    }
+
 }
