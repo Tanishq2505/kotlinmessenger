@@ -17,22 +17,24 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
         supportActionBar?.title = "Login"
-        val emailEditText = findViewById<EditText>(R.id.email_edit_text_login)
-        val passwordEditText = findViewById<EditText>(R.id. password_edit_text_login)
         val loginButton = findViewById<Button>(R.id.login_button_login)
 
         loginButton.setOnClickListener {
-            val emailLogin = emailEditText.text.toString()
-            val passwordLogin = passwordEditText.text.toString()
-            Log.d("LoginActivity","Email = $emailLogin")
-            Log.d("LoginActivity","Password = $passwordLogin")
-            performLogin(emailLogin,passwordLogin)
+            performLogin()
 
 
         }
     }
 
-    private fun performLogin(emailLogin: String, passwordLogin: String) {
+    private fun performLogin() {
+        val emailEditText = findViewById<EditText>(R.id.email_edit_text_login)
+        val passwordEditText = findViewById<EditText>(R.id. password_edit_text_login)
+        val emailLogin = emailEditText.text.toString()
+        val passwordLogin = passwordEditText.text.toString()
+        if (emailLogin.isEmpty() || passwordLogin.isEmpty()){
+            Toast.makeText(this,"Please fil out Email/Password",Toast.LENGTH_SHORT).show()
+            return
+        }
         firebaseAuth.signInWithEmailAndPassword(emailLogin,passwordLogin)
             .addOnSuccessListener {
                 val intent = Intent(this,LatestMessagesActivity::class.java)

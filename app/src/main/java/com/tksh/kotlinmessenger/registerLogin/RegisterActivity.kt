@@ -31,18 +31,13 @@ class RegisterActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-        val userNameEditText = findViewById<EditText>(R.id.username_edit_text_register)
-        val passwordEditText = findViewById<EditText>(R.id.password_edit_text_register)
-        val emailEditText = findViewById<EditText>(R.id.email_edit_text_register)
         val registerButton = findViewById<Button>(R.id.register_button_register)
         val alreadyRegistered = findViewById<TextView>(R.id.already_have_account_text_view_register)
         val selectPhotoButton = findViewById<Button>(R.id.select_image_button_register)
 
         registerButton.setOnClickListener {
-            val email = emailEditText.text.toString().trim()
-            val password = passwordEditText.text.toString().trim()
-            val userName = userNameEditText.text.toString().trim()
-            performRegister(userName,email,password)
+
+            performRegister()
         }
         alreadyRegistered.setOnClickListener {
             Log.d("MainActivity","Try to show log in activity")
@@ -91,7 +86,13 @@ var selectedPhotoUri : Uri? = null
             .start(this)
     }
 
-    private fun performRegister(userName :String,email:String,password:String) {
+    private fun performRegister() {
+        val userNameEditText = findViewById<EditText>(R.id.username_edit_text_register)
+        val passwordEditText = findViewById<EditText>(R.id.password_edit_text_register)
+        val emailEditText = findViewById<EditText>(R.id.email_edit_text_register)
+        val email = emailEditText.text.toString().trim()
+        val password = passwordEditText.text.toString().trim()
+        val userName = userNameEditText.text.toString().trim()
 
 
         if(email == ""){

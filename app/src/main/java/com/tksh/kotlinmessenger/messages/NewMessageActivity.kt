@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.facebook.shimmer.ShimmerFrameLayout
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -18,6 +20,7 @@ import com.tksh.kotlinmessenger.models.User
 import com.xwray.groupie.GroupieAdapter
 import com.xwray.groupie.GroupieViewHolder
 import com.xwray.groupie.Item
+import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.activity_new_message.*
 import kotlinx.android.synthetic.main.user_row_new_message.view.*
 
@@ -43,6 +46,11 @@ class NewMessageActivity : AppCompatActivity() {
             },1000)
 
         }
+        recyclerview_new_message.addItemDecoration(
+            DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL)
+        )
+
     }
     companion object{
         val USER_KEY = "USER_NAME_KEY"
@@ -60,17 +68,18 @@ class NewMessageActivity : AppCompatActivity() {
                     if(user!=null) {
                         shimmerFrame.stopShimmer()
                         shimmerFrame.visibility = View.GONE
-                        adapter.add(UserItem(user))
+                        if (user.uid != FirebaseAuth.getInstance().uid) adapter.add(UserItem(user))
                     }
                 }
-                recyclerview_new_message.adapter = adapter
                 adapter.setOnItemClickListener { item, view ->
                     val userData = item as UserItem
-                    val intent = Intent(this@NewMessageActivity,ChatLogActivity::class.java)
+                    val intent = Intent(view.context,ChatLogActivity::class.java)
                     intent.putExtra(USER_KEY,userData.user)
                     startActivity(intent)
                     finish()
                 }
+                recyclerview_new_message.adapter = adapter
+
             }
 
             override fun onCancelled(error: DatabaseError) {

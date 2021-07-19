@@ -1,5 +1,6 @@
 package com.tksh.kotlinmessenger.messages
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,19 +9,18 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.ktx.Firebase
-import com.squareup.picasso.Picasso
 import com.tksh.kotlinmessenger.R
+import com.tksh.kotlinmessenger.messages.NewMessageActivity.Companion.USER_KEY
 import com.tksh.kotlinmessenger.models.ChatMessage
 import com.tksh.kotlinmessenger.models.User
+import com.tksh.kotlinmessenger.view.ChatFromItem
+import com.tksh.kotlinmessenger.view.ChatToItem
+import com.tksh.kotlinmessenger.view.LatestMessageRow
 import com.xwray.groupie.GroupieAdapter
-import com.xwray.groupie.GroupieViewHolder
-import com.xwray.groupie.Item
 import kotlinx.android.synthetic.main.activity_chat_log.*
 import kotlinx.android.synthetic.main.activity_chat_log.view.*
 import kotlinx.android.synthetic.main.chat_from_row.view.*
 import kotlinx.android.synthetic.main.chat_to_row.view.*
-import java.sql.Timestamp
 
 class ChatLogActivity : AppCompatActivity() {
     companion object{
@@ -32,7 +32,6 @@ class ChatLogActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
         recyclerView_chatlog.adapter = adapter
-        recyclerView_chatlog.scrollToPosition(adapter.itemCount -1)
         toUser = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY) ?: return
         supportActionBar?.title = toUser?.username
 //        setupDummyData(user)
@@ -42,12 +41,12 @@ class ChatLogActivity : AppCompatActivity() {
             performSendMessage()
 
         }
+
     }
 
     private fun listenForMessages() {
         val fromId = FirebaseAuth.getInstance().uid
         val toId = toUser?.uid
-        val currentUser = LatestMessagesActivity.currentUser?:return
         val ref = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId")
 
         ref.addChildEventListener(object:ChildEventListener{
@@ -55,12 +54,14 @@ class ChatLogActivity : AppCompatActivity() {
                 val chatMessage = snapshot.getValue(ChatMessage::class.java)
              if (chatMessage!= null){
                  if(chatMessage.fromId==FirebaseAuth.getInstance().uid) {
+                     val currentUser = LatestMessagesActivity.currentUser?:return
                      adapter.add(ChatFromItem(currentUser, chatMessage))
                  }
                  else {
-                     adapter.add(ChatToItem(chatMessage))
+                     adapter.add(ChatToItem(chatMessage,toUser!!))
                  }
             }
+                recyclerView_chatlog.scrollToPosition(adapter.itemCount-1)
             }
 
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
@@ -90,56 +91,18 @@ class ChatLogActivity : AppCompatActivity() {
         val reference = FirebaseDatabase.getInstance().getReference("/user-messages/$fromId/$toId").push()
         val toReference = FirebaseDatabase.getInstance().getReference("/user-messages/$toId/$fromId").push()
         val chatMessage = ChatMessage(reference.key!!,message,fromId,toId,System.currentTimeMillis()/1000)
-        val toChatMessage = ChatMessage(reference.key!!,message,fromId,toId,System.currentTimeMillis()/1000)
-        val latestMessageReference = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
-        val latestMessageToReference = FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
         reference.setValue(chatMessage)
             .addOnSuccessListener {
                 Log.d(TAG,"Message sent : ${reference.key}")
                 edittext_chat_log.text.clear()
                 recyclerView_chatlog.scrollToPosition(adapter.itemCount-1)
             }
-        toReference.setValue(toChatMessage)
-            .addOnSuccessListener {
-                Log.d(TAG,"Message sent : ${reference.key}")
-            }
+        toReference.setValue(chatMessage)
+
+        val latestMessageReference = FirebaseDatabase.getInstance().getReference("/latest-messages/$fromId/$toId")
         latestMessageReference.setValue(chatMessage)
+        val latestMessageToReference = FirebaseDatabase.getInstance().getReference("/latest-messages/$toId/$fromId")
         latestMessageToReference.setValue(chatMessage)
-    }
-
-//    private fun setupDummyData(user:User) {
-//        val adapter = GroupieAdapter()
-//        adapter.add(ChatFromItem(user))
-//        adapter.add(ChatToItem(user))
-//        adapter.add(ChatFromItem(user))
-//        adapter.add(ChatToItem(user))
-//        adapter.add(ChatFromItem(user))
-//        adapter.add(ChatToItem(user))
-//        adapter.add(ChatFromItem(user))
-//        adapter.add(ChatToItem(user))
-//        recyclerView_chatlog.adapter = adapter
-//    }
-}
-class ChatFromItem(private val user:User,private val chatMessage: ChatMessage) : Item<GroupieViewHolder>(){
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.itemView.text_from_chatLog.text = chatMessage.text
-    Picasso.get().load(user.profileImageUrl).into(viewHolder.itemView.image_from_chatLog)
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.chat_from_row
-    }
-
-}
-class ChatToItem( private val chatMessage: ChatMessage) : Item<GroupieViewHolder>(){
-    override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        viewHolder.itemView.text_to_chatLog.text = chatMessage.text
-
-        Picasso.get().load(LatestMessagesActivity.currentUser!!.profileImageUrl).into(viewHolder.itemView.image_to_chatLog)
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.chat_to_row
     }
 
 }
